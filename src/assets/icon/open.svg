@@ -1,0 +1,11 @@
+<svg id="icon_modal" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <g id="レイヤー_4" data-name="レイヤー 4" transform="translate(-1908.462 -301.415)" opacity="0">
+    <rect id="長方形_839" data-name="長方形 839" width="24" height="24" transform="translate(1908.462 301.415)" fill="#68bfcc"/>
+  </g>
+  <g id="レイヤー_1" data-name="レイヤー 1" transform="translate(-1908.462 -301.415)">
+    <g id="グループ_512" data-name="グループ 512">
+      <path id="パス_857" data-name="パス 857" d="M1918.036,317.2l-1.323-1.355,12.536-12.536h-6.9v-1.89h10.111v10.111h-1.89V304.66Z" fill="#222"/>
+      <path id="パス_858" data-name="パス 858" d="M1910.352,325.415a1.938,1.938,0,0,1-1.89-1.89v-18.9a1.938,1.938,0,0,1,1.89-1.89h8.788v1.89h-8.788v18.9h18.9v-8.788h1.89v8.788a1.938,1.938,0,0,1-1.89,1.89Z" fill="#222"/>
+    </g>
+  </g>
+</svg>

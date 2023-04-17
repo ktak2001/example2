@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <g id="icon_gift" transform="translate(0 0)">
+    <g id="レイヤー_4" data-name="レイヤー 4" transform="translate(-1876.311 -54.906)" opacity="0">
+      <rect id="長方形_744" data-name="長方形 744" width="24" height="24" transform="translate(1876.311 54.906)" fill="#68bfcc"/>
+    </g>
+    <g id="レイヤー_1" data-name="レイヤー 1" transform="translate(-1876.311 -54.906)">
+      <path id="パス_832" data-name="パス 832" d="M1899.311,59.906h-2.823v-4.4a.6.6,0,0,0-.866-.538l-5.81,2.884v-.02h-3v.02L1881,54.969a.6.6,0,0,0-.867.538v4.4h-2.823a1,1,0,0,0-1,1v17a1,1,0,0,0,1,1h22a1,1,0,0,0,1-1v-17A1,1,0,0,0,1899.311,59.906Zm-21.2,1.8h8.7v15.4h-8.7Zm20.4,15.4h-8.7v-15.4h8.7Z" fill="#222"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,123 @@
+diff --git a/node_modules/@shopify/hydrogen/dist/esnext/foundation/Form/Form.client.d.ts b/node_modules/@shopify/hydrogen/dist/esnext/foundation/Form/Form.client.d.ts
+index d82b252..4d85630 100644
+--- a/node_modules/@shopify/hydrogen/dist/esnext/foundation/Form/Form.client.d.ts
++++ b/node_modules/@shopify/hydrogen/dist/esnext/foundation/Form/Form.client.d.ts
+@@ -2,7 +2,7 @@ import React, { FormEvent } from 'react';
+ interface FormProps {
+     action: string;
+     method?: string;
+-    children?: Array<React.ReactNode>;
++    children?: (args: { loading: boolean, error: Error | null }) => React.ReactNode;
+     onSubmit?: (e: FormEvent<HTMLFormElement>) => void;
+     encType?: string;
+     noValidate?: boolean;
+diff --git a/node_modules/@shopify/hydrogen/dist/esnext/hooks/useShopQuery/hooks.d.ts b/node_modules/@shopify/hydrogen/dist/esnext/hooks/useShopQuery/hooks.d.ts
+index 77d6232..39a74c8 100644
+--- a/node_modules/@shopify/hydrogen/dist/esnext/hooks/useShopQuery/hooks.d.ts
++++ b/node_modules/@shopify/hydrogen/dist/esnext/hooks/useShopQuery/hooks.d.ts
+@@ -1,4 +1,5 @@
+ import type { CachingStrategy, PreloadOptions } from '../../types.js';
++import { TypedDocumentNode } from "@graphql-typed-document-node/core";
+ export interface UseShopQueryResponse<T> {
+     /** The data returned by the query. */
+     data: T;
+@@ -7,13 +8,13 @@ export interface UseShopQueryResponse<T> {
+ /**
+  * The `useShopQuery` hook allows you to make server-only GraphQL queries to the Storefront API. It must be a descendent of a `ShopifyProvider` component.
+  */
+-export declare function useShopQuery<T>({ query, variables, cache, preload, }: {
++export declare function useShopQuery<Data, Variables>({ query, variables, cache, preload, }: {
+     /** A string of the GraphQL query.
+      * If no query is provided, useShopQuery will make no calls to the Storefront API.
+      */
+-    query?: string;
++    query?: TypedDocumentNode<Data, Variables>;
+     /** An object of the variables for the GraphQL query. */
+-    variables?: Record<string, any>;
++    variables?: Variables;
+     /** The [caching strategy](https://shopify.dev/custom-storefronts/hydrogen/framework/cache#caching-strategies) to
+      * help you determine which cache control header to set.
+      */
+@@ -25,4 +26,4 @@ export declare function useShopQuery<T>({ query, variables, cache, preload, }: {
+      * to preload the query for all requests.
+      */
+     preload?: PreloadOptions;
+-}): UseShopQueryResponse<T>;
++}): UseShopQueryResponse<Data>;
+diff --git a/node_modules/@shopify/hydrogen/dist/esnext/hooks/useShopQuery/hooks.js b/node_modules/@shopify/hydrogen/dist/esnext/hooks/useShopQuery/hooks.js
+index e7b8410..c0ec101 100644
+--- a/node_modules/@shopify/hydrogen/dist/esnext/hooks/useShopQuery/hooks.js
++++ b/node_modules/@shopify/hydrogen/dist/esnext/hooks/useShopQuery/hooks.js
+@@ -8,6 +8,7 @@ import { fetchSync } from '../../foundation/fetchSync/server/fetchSync.js';
+ import { META_ENV_SSR } from '../../foundation/ssr-interop.js';
+ import { getStorefrontApiRequestHeaders } from '../../utilities/storefrontApi.js';
+ import { parseJSON } from '../../utilities/parse.js';
++import { print } from 'graphql';
+ // Check if the response body has GraphQL errors
+ // https://spec.graphql.org/June2018/#sec-Response-Format
+ const shouldCacheResponse = ([body]) => {
+@@ -35,7 +36,7 @@ export function useShopQuery({ query, variables = {}, cache, preload = false, })
+     }
+     const serverRequest = useServerRequest(); // eslint-disable-line react-hooks/rules-of-hooks
+     const log = getLoggerWithContext(serverRequest);
+-    const body = query ? graphqlRequestBody(query, variables) : '';
++    const body = query ? graphqlRequestBody(print(query), variables) : '';
+     const { url, requestInit } = useCreateShopRequest(body); // eslint-disable-line react-hooks/rules-of-hooks
+     let text;
+     let data;
+diff --git a/node_modules/@shopify/hydrogen/dist/esnext/utilities/apiRoutes.d.ts b/node_modules/@shopify/hydrogen/dist/esnext/utilities/apiRoutes.d.ts
+index d8ca2f8..5df168b 100644
+--- a/node_modules/@shopify/hydrogen/dist/esnext/utilities/apiRoutes.d.ts
++++ b/node_modules/@shopify/hydrogen/dist/esnext/utilities/apiRoutes.d.ts
+@@ -3,11 +3,12 @@ import { Logger } from '../utilities/log/index.js';
+ import type { HydrogenRequest } from '../foundation/HydrogenRequest/HydrogenRequest.server.js';
+ import type { SessionApi, SessionStorageAdapter } from '../foundation/session/session-types.js';
+ import { UseShopQueryResponse } from '../hooks/useShopQuery/hooks.js';
++import { TypedDocumentNode } from "@graphql-typed-document-node/core";
+ declare type RouteParams = Record<string, string>;
+ export declare type RequestOptions = {
+     log: Logger;
+     params: RouteParams;
+-    queryShop: <T>(args: QueryShopArgs) => Promise<UseShopQueryResponse<T>>;
++    queryShop: <Data, Variables>(args: QueryShopArgs<Data, Variables>) => Promise<UseShopQueryResponse<Data>>;
+     session: SessionApi | null;
+     hydrogenConfig: ResolvedHydrogenConfig;
+ };
+@@ -29,13 +30,13 @@ export declare function getApiRouteFromURL(url: URL, routes: Array<HydrogenApiRo
+  * It's similar to the `useShopQuery` hook, which is available in server components.
+  * To use `queryShop`, pass `shopifyConfig` to `renderHydrogen` inside `App.server.jsx`.
+  */
+-interface QueryShopArgs {
++interface QueryShopArgs<Data, Variables> {
+     /** A string of the GraphQL query.
+      * If no query is provided, then the `useShopQuery` makes no calls to the Storefront API.
+      */
+-    query: string;
++    query: TypedDocumentNode<Data, Variables>;
+     /** An object of the variables for the GraphQL query. */
+-    variables?: Record<string, any>;
++    variables?: Variables;
+ }
+ export declare function renderApiRoute(request: HydrogenRequest, route: ApiRouteMatch, hydrogenConfig: ResolvedHydrogenConfig, { session, suppressLog, }: {
+     session?: SessionStorageAdapter;
+diff --git a/node_modules/@shopify/hydrogen/dist/esnext/utilities/apiRoutes.js b/node_modules/@shopify/hydrogen/dist/esnext/utilities/apiRoutes.js
+index 85164fc..a91b09b 100644
+--- a/node_modules/@shopify/hydrogen/dist/esnext/utilities/apiRoutes.js
++++ b/node_modules/@shopify/hydrogen/dist/esnext/utilities/apiRoutes.js
+@@ -4,6 +4,7 @@ import { fetchBuilder, graphqlRequestBody } from './fetch.js';
+ import { getStorefrontApiRequestHeaders } from './storefrontApi.js';
+ import { emptySessionImplementation } from '../foundation/session/session.js';
+ import { FORM_REDIRECT_COOKIE, RSC_PATHNAME } from '../constants.js';
++import { print } from 'graphql';
+ let memoizedApiRoutes = [];
+ let memoizedRawRoutes = {};
+ export function extractPathFromRoutesKey(routesKey, dirPrefix) {
+@@ -91,7 +92,7 @@ function queryShopBuilder(shopifyConfigGetter, request) {
+         });
+         const fetcher = fetchBuilder(`https://${storeDomain}/api/${storefrontApiVersion}/graphql.json`, {
+             method: 'POST',
+-            body: graphqlRequestBody(query, variables),
++            body: graphqlRequestBody(print(query), variables),
+             headers: {
+                 'Content-Type': 'application/json',
+                 ...extraHeaders,

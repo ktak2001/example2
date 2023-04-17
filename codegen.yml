@@ -1,0 +1,17 @@
+overwrite: true
+schema:
+  - https://coco-pet-dev.myshopify.com/api/2022-10/graphql.json:
+      headers:
+        X-Shopify-Storefront-Access-Token: 4aafc527898705e5239585d8d3a6eea0
+        content-type: application/json
+documents:
+  - "src/**/*.ts"
+  - "src/**/*.tsx"
+  - "!src/gql/**/*"
+generates:
+  src/gql/:
+    preset: gql-tag-operations-preset
+    config:
+      dedupeFragments: true
+  schema.graphql:
+    plugins: schema-ast
